@@ -3,7 +3,8 @@ This project was inspired by Skynet UNC and it's Astromancer Program. Astromance
 As of March 18th, 2025, all that is required for the user to do after everything is set up, is give the program a name of a cluster. The Caldwell names and common names do not work for this. What I mean by common names is that the program won't accept Pleiades but will accept M45.
 This code does not seem to be accurate.
 # Enviroment Used: #
-The main python packages used were Asteca,(https://github.com/asteca/ASteCA) Astroquery (https://github.com/astropy/astroquery), and Ezpadova-2 (https://github.com/asteca/ezpadova-2). The version of Asteca that I used what 0.5.8. While there is a version 0.5.9 that holds the isochrones and the code for pulling those isochronse, a bug was stopping me from being able to update Asteca. If you experience this bug you will have to use Ezpadova-2 to import the isochrones. Or you can use the isochrones that are part of this project. You will also have to update plot.py (virtualenvs/asteca/lib/python3.11/site-packages/asteca/plot.py) file to contain the following from version 0.5.9:
+The main python packages used were Asteca,(https://github.com/asteca/ASteCA) Astroquery (https://github.com/astropy/astroquery), and Ezpadova-2 (https://github.com/asteca/ezpadova-2). The version of Asteca that I used was 0.5.8. While there is a version 0.5.9 that holds the isochrones and the code for pulling those isochrones, a bug was stopping me from being able to update Asteca. If you experience this bug, you will have to use Ezpadova-2 to import the isochrones. Or you can use the isochrones that are part of this project. You will also have to update the plot.py (virtualenvs/asteca/lib/python3.11/site-packages/asteca/plot.py) file to contain the following code from version 0.5.9:
+
 '''python
 def get_isochrone(
     synth: Synthetic,
