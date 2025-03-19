@@ -15,7 +15,7 @@ Gaia.ROW_LIMIT = 10000  # Ensure the default row limit. This has to be high beca
 right_ascension = result_table['ra'][0]
 declination = result_table['dec'][0]
 
-print(right_ascension, declination)
+print("Right Ascension:",right_ascension, "Declination:", declination)
 
 coord = SkyCoord(ra=right_ascension, dec=declination, unit=(u.degree, u.degree), frame='icrs')
 
@@ -68,6 +68,7 @@ import matplotlib.pyplot as plt
 #plots the cluster on a color-magnitude diagram
 ax =  plt.subplot()
 asteca.plot.cluster(my_cluster,ax)
+plt.title("Color-Magnitude Diagram")
 plt.show()
 #will have to exit first for code to continue running
 
@@ -77,6 +78,9 @@ my_cluster.get_center()
 ax = plt.subplot(221)
 asteca.plot.radec(my_cluster, ax)
 plt.scatter(my_cluster.radec_c[0], my_cluster.radec_c[1], marker='x', s=25, c='r')
+plt.xlabel("ra")
+plt.ylabel("dec")
+plt.title("RA and Dec")
 
 #plots the cluster in pmra and pmde with the cluster center marked with a red x
 ax = plt.subplot(222)
@@ -84,13 +88,14 @@ plt.scatter(my_cluster.pmra_v, my_cluster.pmde_v, c='k', alpha=.15, s=5)
 plt.scatter(my_cluster.pms_c[0], my_cluster.pms_c[1], marker='x', s=25, c='r')
 plt.xlabel("pmra")
 plt.ylabel("pmde")
+plt.title("Proper Motions")
 
 #plots the cluster in paralax with the cluster center marked with a red dashed line
 ax = plt.subplot(223)
 plt.hist(my_cluster.plx_v, 30)
 plt.axvline(my_cluster.plx_c, c='r', ls=':')
 plt.xlabel("plx")
-
+plt.title("Parallax")
 plt.show()
 
 # Estimate the cluster's center coordinates
@@ -120,6 +125,7 @@ plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_fastmp[msk], e
 plt.gca().invert_yaxis()
 plt.xlim(0, 2.5)
 plt.colorbar()
+plt.title("fastMP")
 
 # Bayesian memberhsip # will not work for some reason??
 # log of clusters bayesian membership is not working:
@@ -133,6 +139,7 @@ plt.colorbar()
 #plt.gca().invert_yaxis()
 #plt.xlim(0, 2.5)
 #plt.colorbar()
+#plt.title("Bayesian")
 
 plt.show()
 
@@ -254,6 +261,7 @@ ax = plt.subplot(111)
 
 isoch_arr = asteca.plot.get_isochrone(synthc1, fit_params)
 asteca.plot.synthetic(synthc1, ax, fit_params, isoch_arr)
+plt.title("Synthetic Cluster with Isochrone")
 plt.show()
 
 os.remove(file_name) #deletes the csv file after the code is done running
