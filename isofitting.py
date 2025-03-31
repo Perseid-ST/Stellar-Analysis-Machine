@@ -242,6 +242,10 @@ for k in df.keys():
     _std = pyabc.weighted_statistics.weighted_std(df[k].values, w)
     print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
 
+print(f"N_cluster      : {my_cluster.get_nmembers()}") #my_cluster.get_nmembers
+
+print("Right Ascension:",right_ascension, "Declination:", declination)
+
 pyabc.settings.set_figure_params("pyabc")  # for beautified plots
 
 # Matrix of 1d and 2d histograms over all parameters
