@@ -5,6 +5,15 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 import numpy as np
+import sys
+
+# Ensure a cluster name is provided as a command-line argument
+if len(sys.argv) < 2:
+    print("Error: No cluster name provided.")
+    sys.exit(1)
+
+# Retrieve the cluster name from the command-line arguments
+cluster_name = sys.argv[1]
 
 #cluster_name = input("Enter the name of the stellar cluster: ")
 #removed for processing clusters from csv
@@ -266,6 +275,6 @@ ax = plt.subplot(111)
 isoch_arr = asteca.plot.get_isochrone(synthc1, fit_params)
 asteca.plot.synthetic(synthc1, ax, fit_params, isoch_arr)
 plt.title("Synthetic Cluster with Isochrone")
-plt.show()
+#plt.show()
 
 os.remove(file_name) #deletes the csv file after the code is done running
