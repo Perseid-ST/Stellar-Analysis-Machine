@@ -6,8 +6,8 @@ from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 import numpy as np
 
-cluster_name = input("Enter the name of the stellar cluster: ")
-
+#cluster_name = input("Enter the name of the stellar cluster: ")
+#removed for processing clusters from csv
 result_table = Simbad.query_object(cluster_name)
 
 Gaia.ROW_LIMIT = 10000  # Ensure the default row limit. This has to be high because of fastmp
@@ -69,7 +69,7 @@ import matplotlib.pyplot as plt
 ax =  plt.subplot()
 asteca.plot.cluster(my_cluster,ax)
 plt.title("Color-Magnitude Diagram")
-plt.show()
+#plt.show()
 #will have to exit first for code to continue running
 
 my_cluster.get_center()
@@ -96,7 +96,7 @@ plt.hist(my_cluster.plx_v, 30)
 plt.axvline(my_cluster.plx_c, c='r', ls=':')
 plt.xlabel("plx")
 plt.title("Parallax")
-plt.show()
+#plt.show()
 
 # Estimate the cluster's center coordinates
 my_cluster.get_center()
@@ -114,7 +114,7 @@ memb = asteca.membership(my_cluster)
 probs_fastmp = memb.fastmp()
 
 # Run ``bayesian`` method
-probs_bayes = memb.bayesian()
+#probs_bayes = memb.bayesian()
 
 # fastMP membership
 plt.subplot(121)
@@ -131,17 +131,17 @@ plt.title("fastMP")
 # log of clusters bayesian membership is not working:
 #m15--> it was zero but now its too big *shrug*
 
-plt.subplot(122)
-plt.title("Bayesian")
-plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
-msk = probs_bayes > 0.9
-plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
-plt.gca().invert_yaxis()
-plt.xlim(0, 2.5)
-plt.colorbar()
-plt.title("Bayesian")
+#plt.subplot(122)
+#plt.title("Bayesian")
+#plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
+#msk = probs_bayes > 0.9
+#plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
+#plt.gca().invert_yaxis()
+#plt.xlim(0, 2.5)
+#plt.colorbar()
+#plt.title("Bayesian")
 
-plt.show()
+#plt.show()
 
 
 
@@ -240,11 +240,11 @@ print("----------------------")
 for k in df.keys():
     _median = pyabc.weighted_statistics.weighted_median(df[k].values, w)
     _std = pyabc.weighted_statistics.weighted_std(df[k].values, w)
-    print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
+    print("{:<5}: {:.3f}".format(k, _median))
+    print("{:<5}_error: {:.3f}".format(k, _std)) #seperated for process cluster.py
+    #original:
+    #print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
 
-print(f"N_cluster      : {my_cluster.get_nmembers()}") #my_cluster.get_nmembers
-
-print("Right Ascension:",right_ascension, "Declination:", declination)
 
 pyabc.settings.set_figure_params("pyabc")  # for beautified plots
 
