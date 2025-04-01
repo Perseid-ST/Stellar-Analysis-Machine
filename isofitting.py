@@ -123,7 +123,7 @@ memb = asteca.membership(my_cluster)
 probs_fastmp = memb.fastmp()
 
 # Run ``bayesian`` method
-#probs_bayes = memb.bayesian()
+probs_bayes = memb.bayesian()
 
 # fastMP membership
 plt.subplot(121)
@@ -140,14 +140,14 @@ plt.title("fastMP")
 # log of clusters bayesian membership is not working:
 #m15--> it was zero but now its too big *shrug*
 
-#plt.subplot(122)
-#plt.title("Bayesian")
-#plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
-#msk = probs_bayes > 0.9
-#plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
-#plt.gca().invert_yaxis()
-#plt.xlim(0, 2.5)
-#plt.colorbar()
+plt.subplot(122)
+plt.title("Bayesian")
+plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
+msk = probs_bayes > 0.9
+plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
+plt.gca().invert_yaxis()
+plt.xlim(0, 2.5)
+plt.colorbar()
 #plt.title("Bayesian")
 
 #plt.show()
