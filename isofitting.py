@@ -5,9 +5,18 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 import numpy as np
+import sys
 
-cluster_name = input("Enter the name of the stellar cluster: ")
+# Ensure a cluster name is provided as a command-line argument
+if len(sys.argv) < 2:
+    print("Error: No cluster name provided.")
+    sys.exit(1)
 
+# Retrieve the cluster name from the command-line arguments
+cluster_name = sys.argv[1]
+
+#cluster_name = input("Enter the name of the stellar cluster: ")
+#removed for processing clusters from csv
 result_table = Simbad.query_object(cluster_name)
 
 Gaia.ROW_LIMIT = 10000  # Ensure the default row limit. This has to be high because of fastmp
@@ -69,7 +78,7 @@ import matplotlib.pyplot as plt
 ax =  plt.subplot()
 asteca.plot.cluster(my_cluster,ax)
 plt.title("Color-Magnitude Diagram")
-plt.show()
+#plt.show()
 #will have to exit first for code to continue running
 
 my_cluster.get_center()
@@ -96,7 +105,7 @@ plt.hist(my_cluster.plx_v, 30)
 plt.axvline(my_cluster.plx_c, c='r', ls=':')
 plt.xlabel("plx")
 plt.title("Parallax")
-plt.show()
+#plt.show()
 
 # Estimate the cluster's center coordinates
 my_cluster.get_center()
@@ -139,9 +148,9 @@ plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec
 plt.gca().invert_yaxis()
 plt.xlim(0, 2.5)
 plt.colorbar()
-plt.title("Bayesian")
+#plt.title("Bayesian")
 
-plt.show()
+#plt.show()
 
 
 
@@ -240,11 +249,11 @@ print("----------------------")
 for k in df.keys():
     _median = pyabc.weighted_statistics.weighted_median(df[k].values, w)
     _std = pyabc.weighted_statistics.weighted_std(df[k].values, w)
-    print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
+    print("{:<5}: {:.3f}".format(k, _median))
+    print("{:<5}_error: {:.3f}".format(k, _std)) #seperated for process cluster.py
+    #original:
+    #print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
 
-print(f"N_cluster      : {my_cluster.get_nmembers()}") #my_cluster.get_nmembers
-
-print("Right Ascension:",right_ascension, "Declination:", declination)
 
 pyabc.settings.set_figure_params("pyabc")  # for beautified plots
 
@@ -266,6 +275,6 @@ ax = plt.subplot(111)
 isoch_arr = asteca.plot.get_isochrone(synthc1, fit_params)
 asteca.plot.synthetic(synthc1, ax, fit_params, isoch_arr)
 plt.title("Synthetic Cluster with Isochrone")
-plt.show()
+#plt.show()
 
 os.remove(file_name) #deletes the csv file after the code is done running
