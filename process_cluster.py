@@ -15,6 +15,20 @@ def loading_animation():
             time.sleep(0.2)
     print("\rProcessing clusters... Done!", flush=True)
 
+def dm_to_kpc(dm):
+    """Convert distance modulus (dm) to distance in kiloparsecs (kpc)."""
+    return 10**((dm - 5) / 5)
+
+def calculate_e_bv(av, rv=3.1):
+    """
+    Calculate color excess (E(B-V)) from total extinction (Av).
+
+    :param av: Total extinction (Av) in magnitudes
+    :param rv: Ratio of total to selective extinction (default is 3.1)
+    :return: Color excess (E(B-V)) in magnitudes
+    """
+    return av / rv
+
 def process_cluster(cluster_name):
     try:
         print(f"Processing cluster: {cluster_name}")
@@ -85,8 +99,19 @@ def process_clusters_from_csv(csv_file):
         if results:
             results_df = pd.DataFrame(results)
             updated_data = pd.merge(data, results_df, on='cluster_name', how='left')
+
+            # Apply dm_to_kpc to the 'dm' column and create a new 'distance_kpc' column
+            if 'dm' in updated_data.columns:
+                updated_data['distance_kpc'] = updated_data['dm'].apply(lambda x: dm_to_kpc(float(x)) if pd.notna(x) else None)
+
+            # Apply calculate_e_bv to the 'Av' column and create a new 'E_BV' column
+            if 'Av' in updated_data.columns:
+                updated_data['E_BV'] = updated_data['Av'].apply(lambda x: calculate_e_bv(float(x)) if pd.notna(x) else None)
+
+
             # Save the updated data back to the CSV file
             updated_data.to_csv(csv_file, index=False)
+
             print(f"Updated CSV file saved: {csv_file}")
 
         # End timing
@@ -98,7 +123,8 @@ def process_clusters_from_csv(csv_file):
         loading = False
         print(f"\nError reading or processing the CSV file: {e}")
 
+
 # Example usage
 if __name__ == "__main__":
-    csv_file = "trial2.csv"  # Replace with the path to your CSV file
+    csv_file = input("CSV file name:")  # Replace with the path to your CSV file
     process_clusters_from_csv(csv_file)
