@@ -1,4 +1,4 @@
-# This is my Physics Capstone #
+# This is SAM (Stellar Analysis Machine) #
 This project was inspired by Skynet UNC and it's Astromancer Program. Astromancer's Isochrone Fitting is done manually. This project is an attempt to limit user input as much as possible.
 As of March 18th, 2025, all that is required for the user to do after everything is set up, is give the program a name of a cluster. The Caldwell names and common names do not work for this. What I mean by common names is that the program won't accept Pleiades but will accept M45. This creates a synthetic cluster based off the data from Gaia GDR3 and fits an isochrone to the synthetic cluster. There are stops along the process for you to save any of the figures and it prints out the estimation of Total Extinction (Av), Distance Modulus (dm), Log(age) (loga), and Metallicity (met).
 This code does not seem to be accurate.
