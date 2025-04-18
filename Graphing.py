@@ -1,103 +1,75 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
-# Load the CSV file
-file_name = "CompB1.csv"
-data = pd.read_csv(file_name)
+# Load the two CSV files
+file1 = "trial1.csv"
+file2 = "ClusterProPlus.csv"
+data1 = pd.read_csv(file1) #from trial1.csv
+data2 = pd.read_csv(file2) #from Cluster Pro Plus.csv
 
-# Extract columns
-cpp_distance = data['CPP Distance']
-dm = data['dm']
-dm_error = data['dm   _error']
-cpp_loga = data['CPP Log(Age)']
-loga = data['loga']
-loga_error = data['loga _error']
-cpp_met = data['CPP Metallicity']
-met = data['met']
-met_error = data['met  _error']
-cpp_ebv = data['CPP E(B-V)']
-av = data['Av']
-av_error = data['Av   _error']
+# Extract columns for comparison
+#distance
+dm1 = data1['distance_kpc']
+dm_error1 = data1['distance_kpc_error']  
+cpp_distance2 = data2['CPP Distance'] 
 
-# Calculate the best-fit line for dm data
-slope, intercept = np.polyfit(dm, cpp_distance, 1)  # Linear fit (degree 1)
-fit_line = slope * np.array(dm) + intercept
-# Distance Plot
-plt.figure(figsize=(10, 6))
-plt.errorbar( dm, cpp_distance, xerr=dm_error, fmt='o', ecolor='red', capsize=3, label='Data with error bars')
-plt.ylabel('CPP Data')
-plt.xlabel('My data')
-plt.title('Distance')
-#min_val = min(min(cpp_distance), min(dm))  # Get the minimum value for the line
-#max_val = max(max(cpp_distance), max(dm))  # Get the maximum value for the line
-min_val = min(dm)
-max_val = max(dm)
-plt.plot(dm, fit_line, 'g-', label='Best fit line')  # green line
-plt.plot([min_val, max_val], [min_val, max_val], 'b--', label='My Data = CPP Data')  # Dashed blue line
-plt.legend()
-plt.grid()
-plt.savefig('distance.png')
-plt.show()
+#age
+cpp_loga2 = data2['CPP Log(Age)']
+loga1 = data1['loga']
+loga_error1 = data1['loga _error']
+
+#metallicity
+cpp_met2 = data2['CPP Metallicity']
+met1 = data1['met']
+met_error1 = data1['met  _error']
+
+#extinction
+cpp_ebv2 = data2['CPP E(B-V)']
+av1 = data1['E_BV']
+av_error1 = data1['E_BV_error']
 
 
-# Calculate the best-fit line for loga data
-slope, intercept = np.polyfit(loga,cpp_loga, 1)  # Linear fit (degree 1)
-fit_line = slope * np.array(loga) + intercept
-# Distance Plot
-plt.figure(figsize=(10, 6))
-plt.errorbar( loga, cpp_loga, xerr=loga_error, fmt='o', ecolor='red', capsize=3, label='Data with error bars')
-plt.ylabel('CPP Data')
-plt.xlabel('My data')
-plt.title('Log(Age)')
-#min_val = min(min(cpp_distance), min(dm))  # Get the minimum value for the line
-#max_val = max(max(cpp_distance), max(dm))  # Get the maximum value for the line
-min_val = min(loga)
-max_val = max(loga)
-plt.plot(loga, fit_line, 'g-', label='Best fit line')  # green line
-plt.plot([min_val, max_val], [min_val, max_val], 'b--', label='My Data = CPP Data')  # Dashed blue line
-plt.legend()
-plt.grid()
-plt.savefig('loga.png')
-plt.show()
+# Function to plot comparisons
+def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
+        # Ensure the output folder exists
+    output_folder = "comparisons"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
+    # Full path for the output file
+    output_path = os.path.join(output_folder, output_file)
 
-# Calculate the best-fit line for dm data
-slope, intercept = np.polyfit(met, cpp_met, 1)  # Linear fit (degree 1)
-fit_line = slope * np.array(met) + intercept
-# Distance Plot
-plt.figure(figsize=(10, 6))
-plt.errorbar( met, cpp_met, xerr=met_error, fmt='o', ecolor='red', capsize=3, label='Data with error bars')
-plt.ylabel('CPP Data')
-plt.xlabel('My data')
-plt.title('Metallicity')
-#min_val = min(min(cpp_distance), min(dm))  # Get the minimum value for the line
-#max_val = max(max(cpp_distance), max(dm))  # Get the maximum value for the line
-min_val = min(met)
-max_val = max(met)
-plt.plot(met, fit_line, 'g-', label='Best fit line')  # green line
-plt.plot([min_val, max_val], [min_val, max_val], 'b--', label='My Data = CPP Data')  # Dashed blue line
-plt.legend()
-plt.grid()
-plt.savefig('metallicity.png')
-plt.show()
+    plt.figure(figsize=(10, 6))
+    # Plot data from the first CSV
+    plt.errorbar(x, y, xerr=xerr, fmt='o', ecolor='red', capsize=3, label='File 1 Data')
 
-# Calculate the best-fit line for dm data
-slope, intercept = np.polyfit(av, cpp_ebv, 1)  # Linear fit (degree 1)
-fit_line = slope * np.array(av) + intercept
-# Distance Plot
-plt.figure(figsize=(10, 6))
-plt.errorbar( av, cpp_ebv, xerr=av_error, fmt='o', ecolor='red', capsize=3, label='Data with error bars')
-plt.ylabel('CPP Data')
-plt.xlabel('My data')
-plt.title('Extinction')
-#min_val = min(min(cpp_distance), min(dm))  # Get the minimum value for the line
-#max_val = max(max(cpp_distance), max(dm))  # Get the maximum value for the line
-min_val = min(av)
-max_val = max(av)
-plt.plot(av, fit_line, 'g-', label='Best fit line')  # green line
-plt.plot([min_val, max_val], [min_val, max_val], 'b--', label='My Data = CPP Data')  # Dashed blue line
-plt.legend()
-plt.grid()
-plt.savefig('extinction.png')
-plt.show()
+    min_val = min(min(x), min(y))  # Determine the minimum value for the line
+    max_val = max(max(x), max(y))  # Determine the maximum value for the line
+    plt.plot([min_val, max_val], [min_val, max_val], linestyle='--', color='blue', label='CPP = My Data')
+
+    #calculate best fit line for my data
+    slope, intercept = np.polyfit(x, y, 1)
+    plt.plot(x, slope*x + intercept, color='green', label='Best Fit Line')
+    # Add labels, title, and legend
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend()
+    plt.grid()
+    # Save the plot
+    plt.savefig(output_path)
+
+# Plot comparisons for each parameter
+plot_comparison(dm1, cpp_distance2, dm_error1,
+                "Distance Comparison", "My Data (dm)", "CPP Distance", "distance_comparison.png")
+
+plot_comparison(loga1, cpp_loga2, loga_error1,
+                "Log(Age) Comparison", "My Data (Log(Age))", "CPP Log(Age)", "loga_comparison.png")
+
+plot_comparison(met1, cpp_met2, met_error1,
+                "Metallicity Comparison", "My Data (Metallicity)", "CPP Metallicity", "metallicity_comparison.png")
+
+plot_comparison(av1, cpp_ebv2, av_error1, 
+                "Extinction Comparison", "My Data (E_BV)", "CPP E(B-V)", "extinction_comparison.png")

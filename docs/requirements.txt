@@ -1,0 +1,4 @@
+sphinx_book_theme
+myst-nb
+sphinx-automodapi
+sphinx_inline_tabs

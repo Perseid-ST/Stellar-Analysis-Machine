@@ -2,6 +2,9 @@ import subprocess
 import pandas as pd
 import threading
 import time
+import os
+import numpy as np
+# This script processes a CSV file containing cluster names, runs isofitting.py for each cluster,
 
 # Global flag to control the loading animation
 loading = False
@@ -104,9 +107,24 @@ def process_clusters_from_csv(csv_file):
             if 'dm' in updated_data.columns:
                 updated_data['distance_kpc'] = updated_data['dm'].apply(lambda x: dm_to_kpc(float(x)) if pd.notna(x) else None)
 
+            # Recalculate dm_error in kpc
+            if 'dm' in updated_data.columns and 'dm   _error' in updated_data.columns:
+                updated_data['distance_kpc_error'] = updated_data.apply(
+                    lambda row: np.log(10) * (dm_to_kpc(float(row['dm'])) / 5) * float(row['dm   _error'])
+                    if pd.notna(row['dm']) and pd.notna(row['dm   _error']) else None,
+                    axis=1
+                )
+
+
             # Apply calculate_e_bv to the 'Av' column and create a new 'E_BV' column
             if 'Av' in updated_data.columns:
                 updated_data['E_BV'] = updated_data['Av'].apply(lambda x: calculate_e_bv(float(x)) if pd.notna(x) else None)
+
+            # Recalculate Av_error in units of E(B-V)
+            if 'Av   _error' in updated_data.columns:
+                updated_data['E_BV_error'] = updated_data['Av   _error'].apply(
+                    lambda x: float(x) / 3.1 if pd.notna(x) else None
+                )
 
 
             # Save the updated data back to the CSV file
