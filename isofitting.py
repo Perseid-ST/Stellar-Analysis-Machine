@@ -152,8 +152,8 @@ synthcl.calibrate(filtered_cluster)
 likelihood = asteca.Likelihood(filtered_cluster)
 
 met_min, met_max = 0.01, 0.02
-loga_min, loga_max = 7.0, 9.5
-dm_min, dm_max = 7.0, 10.5
+loga_min, loga_max = 7.0, 10.1
+dm_min, dm_max = 7.0, 12.0
 Av_min, Av_max = 0.0, 2.0
 
 # Define a pyABC Distribution(). Uniform distributions are employed for all the parameters here but the user can of course change this as desired. See the pyABC docs for more information.
