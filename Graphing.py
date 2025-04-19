@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Load the two CSV files
-file1 = "trial1.csv"
+file1 = "trial2.csv"
 file2 = "ClusterProPlus.csv"
 data1 = pd.read_csv(file1) #from trial1.csv
 data2 = pd.read_csv(file2) #from Cluster Pro Plus.csv
@@ -52,6 +52,13 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
     #calculate best fit line for my data
     slope, intercept = np.polyfit(x, y, 1)
     plt.plot(x, slope*x + intercept, color='green', label='Best Fit Line')
+
+
+    # Add the slope as text on the graph
+    text_x = min_val + (max_val - min_val) * 0.1  # Position text slightly to the right of the minimum value
+    text_y = max_val - (max_val - min_val) * 0.2   # Position text slightly below the maximum value
+    plt.text(text_x, text_y, f"Slope: {slope:.3f}", fontsize=10, color='green', bbox=dict(facecolor='white', alpha=0.5))
+
     # Add labels, title, and legend
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -63,7 +70,7 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
 
 # Plot comparisons for each parameter
 plot_comparison(dm1, cpp_distance2, dm_error1,
-                "Distance Comparison", "My Data (dm)", "CPP Distance", "distance_comparison.png")
+                "Distance Comparison", "My Data (kpc)", "CPP Distance", "distance_comparison.png")
 
 plot_comparison(loga1, cpp_loga2, loga_error1,
                 "Log(Age) Comparison", "My Data (Log(Age))", "CPP Log(Age)", "loga_comparison.png")
