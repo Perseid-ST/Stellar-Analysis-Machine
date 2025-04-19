@@ -20,7 +20,7 @@ if len(sys.argv) < 2:
 # Retrieve the cluster name from the command-line arguments
 cluster_name = sys.argv[1]
 
-#cluster_name = "IC 2944"
+#cluster_name = "NGC 6441"
 
 #cluster_name = input("Enter the name of the stellar cluster: ")
 #removed for processing clusters from csv
@@ -226,21 +226,21 @@ pyabc.settings.set_figure_params("pyabc")  # for beautified plots
 
 #---------------------------------------------------------------------------------------------
 # Credible intervals over time
-plt.figure()
-pyabc.visualization.plot_credible_intervals(history)
+#plt.figure()
+#pyabc.visualization.plot_credible_intervals(history)
 
 # Define the folder name
-output_folder = "credible_intervals"
+#output_folder = "credible_intervals"
 
 # Create the folder if it doesn't exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+#if not os.path.exists(output_folder):
+ #   os.makedirs(output_folder)
 
 # Save the plot in the specified folder
-output_path = os.path.join(output_folder, f"credible_intervals_{cluster_name}.png")
-plt.savefig(output_path, dpi=300)
+#output_path = os.path.join(output_folder, f"credible_intervals_{cluster_name}.png")
+#plt.savefig(output_path, dpi=300)
 
-print(f"Figure saved to {output_path}")
+#print(f"Figure saved to {output_path}")
 
 # Generate the "best fit" synthetic cluster using these parameters
 synth_arr = synthcl.generate(fit_params)
@@ -249,98 +249,98 @@ synth_arr = synthcl.generate(fit_params)
 # Plot the CMD for the observed and synthetic clusters
 # Function to generate a CMD plot
 
-def cmd_plot(color, mag, label, ax=None):
-    """Function to generate a CMD plot"""
-    if ax is None:
-        ax = plt.subplot(111)
-    label = label + f", N={len(mag)}"
-    ax.scatter(color, mag, alpha=0.25, label=label)
-    ax.legend()
-    ax.set_ylim(mag.max() + 1, mag.min() - 1)  # Invert y axis
+#def cmd_plot(color, mag, label, ax=None):
+ #   """Function to generate a CMD plot"""
+  #  if ax is None:
+   #     ax = plt.subplot(111)
+    #label = label + f", N={len(mag)}"
+    #ax.scatter(color, mag, alpha=0.25, label=label)
+    #ax.legend()
+    #ax.set_ylim(mag.max() + 1, mag.min() - 1)  # Invert y axis
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+#fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 # Observed cluster
-cmd_plot(filtered_cluster.color, filtered_cluster.mag, "Observed stars", ax1)
+#cmd_plot(filtered_cluster.color, filtered_cluster.mag, "Observed stars", ax1)
 
 # Synthetic cluster
 # Boolean mask identifying the binary systems
-binary_msk = ~np.isnan(synth_arr[-1])
+#binary_msk = ~np.isnan(synth_arr[-1])
 # Extract magnitude and color
-mag, color = synth_arr[0], synth_arr[1]
+#mag, color = synth_arr[0], synth_arr[1]
 # Plot single systems
-cmd_plot(color[~binary_msk], mag[~binary_msk], "Single systems", ax2)
-# Plot binary systems
-cmd_plot(color[binary_msk], mag[binary_msk], "Binary systems", ax2)
+#cmd_plot(color[~binary_msk], mag[~binary_msk], "Single systems", ax2)
+## Plot binary systems
+#cmd_plot(color[binary_msk], mag[binary_msk], "Binary systems", ax2)
 
 # Get isochrone associated to the synthetic cluster
-isoch_arr = synthcl.get_isochrone(fit_params)
+#isoch_arr = synthcl.get_isochrone(fit_params)
 # Plot the isochrone
-plt.plot(isoch_arr[1], isoch_arr[0], c="k")
+#plt.plot(isoch_arr[1], isoch_arr[0], c="k")
 #plt.savefig(f"cmd_plot_{cluster_name}.png", dpi=300)
 
 #-------------------------------------------------------------------------------------------
 # Plot the filtered cluster and isochrone
-plt.figure(figsize=(8, 6))
+#plt.figure(figsize=(8, 6))
 
 # Plot the filtered cluster
-plt.scatter(
-    filtered_cluster.color, 
-    filtered_cluster.magnitude, 
-    c='blue', 
-    alpha=0.5, 
-    label="Filtered Cluster"
-)
+#plt.scatter(
+ #   filtered_cluster.color, 
+  #  filtered_cluster.magnitude, 
+   # c='blue', 
+   # alpha=0.5, 
+   # label="Filtered Cluster"
+#)
 
 # Overlay the synthetic cluster as triangles
-plt.scatter(
-    synth_arr[1],  # Synthetic cluster color
-    synth_arr[0],  # Synthetic cluster magnitude
-    c='green', 
-    alpha=0.7, 
-    marker='^',  # Triangle marker
-    label="Synthetic Cluster"
-)
+#plt.scatter(
+ #   synth_arr[1],  # Synthetic cluster color
+  #  synth_arr[0],  # Synthetic cluster magnitude
+   # c='green', 
+    #alpha=0.7, 
+    #marker='^',  # Triangle marker
+    #label="Synthetic Cluster"
+#)
 
 # Plot the isochrone
-plt.plot(
-    isoch_arr[1],  # Isochrone color
-    isoch_arr[0],  # Isochrone magnitude
-    c="red", 
-    label="Isochrone"
-)
+#plt.plot(
+ #   isoch_arr[1],  # Isochrone color
+  #  isoch_arr[0],  # Isochrone magnitude
+   # c="red", 
+    #label="Isochrone"
+#)
 
 # Add priors as text annotations on the plot
-x_text = 0.05  # X-coordinate for the text (relative to the plot)
-y_text = 0.95  # Y-coordinate for the text (relative to the plot)
-for i, stat in enumerate(parameter_stats):
-    plt.text(
-        x_text, y_text - i * 0.05,  # Adjust Y-coordinate for each line
-        stat,
-        transform=plt.gca().transAxes,  # Use relative coordinates
-        fontsize=10,
-        verticalalignment="top",
-        bbox=dict(boxstyle="round", facecolor="white", alpha=0.5)  # Optional: Add a background box
-    )
+#x_text = 0.05  # X-coordinate for the text (relative to the plot)
+#y_text = 0.95  # Y-coordinate for the text (relative to the plot)
+#for i, stat in enumerate(parameter_stats):
+ #   plt.text(
+  #      x_text, y_text - i * 0.05,  # Adjust Y-coordinate for each line
+   #     stat,
+    #    transform=plt.gca().transAxes,  # Use relative coordinates
+     #   fontsize=10,
+      #  verticalalignment="top",
+       # bbox=dict(boxstyle="round", facecolor="white", alpha=0.5)  # Optional: Add a background box
+  #  )
 
 # Invert the y-axis (as is standard for CMDs)
-plt.gca().invert_yaxis()
+#plt.gca().invert_yaxis()
 
 # Add labels, legend, and title
-plt.xlabel("G_BP - G_RP")
-plt.ylabel("Gmag")
-plt.title(f"CMD with Isochrone for {cluster_name}")
-plt.legend()
+#plt.xlabel("G_BP - G_RP")
+#plt.ylabel("Gmag")
+#plt.title(f"CMD with Isochrone for {cluster_name}")
+#plt.legend()
 
-output_folder = "figures"
+#output_folder = "figures"
 
 # Create the folder if it doesn't exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+#if not os.path.exists(output_folder):
+ #   os.makedirs(output_folder)
 
 # Save the plot in the specified folder
-output_path = os.path.join(output_folder, f"cmd_with_isochrone_{cluster_name}.png")
-plt.savefig(output_path, dpi=300)
+#output_path = os.path.join(output_folder, f"cmd_with_isochrone_{cluster_name}.png")
+#plt.savefig(output_path, dpi=300)
 
-print(f"Figure saved to {output_path}")
+#print(f"Figure saved to {output_path}")
 
 os.remove(file_name) #deletes the csv file after the code is done running
