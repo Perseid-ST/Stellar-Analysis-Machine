@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Load the two CSV files
-file1 = "trial2.csv"
+file1 = "trial1.csv"
 file2 = "ClusterProPlus.csv"
 data1 = pd.read_csv(file1) #from trial1.csv
 data2 = pd.read_csv(file2) #from Cluster Pro Plus.csv
@@ -32,8 +32,9 @@ av_error1 = data1['E_BV_error']
 
 
 # Function to plot comparisons
-def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
-        # Ensure the output folder exists
+# Function to plot comparisons
+def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
+    # Ensure the output folder exists
     output_folder = "comparisons"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -43,21 +44,25 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
 
     plt.figure(figsize=(10, 6))
     # Plot data from the first CSV
-    plt.errorbar(x, y, xerr=xerr, fmt='o', ecolor='red', capsize=3, label='File 1 Data')
+    plt.errorbar(x, y, xerr=xerr, fmt='o', ecolor='red', capsize=3, label='SAM Data')
 
-    min_val = min(min(x), min(y))  # Determine the minimum value for the line
-    max_val = max(max(x), max(y))  # Determine the maximum value for the line
+    # Calculate axis limits based on the data
+    x_min, x_max = min(x), max(x)
+    y_min, y_max = min(y), max(y)
+
+    # Add a y = x line
+    min_val = max(x_min, y_min)  # Start the y = x line at the larger of x_min and y_min
+    max_val = min(x_max, y_max)  # End the y = x line at the smaller of x_max and y_max
     plt.plot([min_val, max_val], [min_val, max_val], linestyle='--', color='blue', label='CPP = SAM')
 
-    #calculate best fit line for my data
+    # Calculate best fit line for my data
     slope, intercept = np.polyfit(x, y, 1)
-    plt.plot(x, slope*x + intercept, color='green', label='Best Fit Line')
+    best_fit_label = f"Best Fit Line: y = {slope:.3f}x + {intercept:.3f}"
+    plt.plot(x, slope * x + intercept, color='green', label=best_fit_label)
 
-
-    # Add the slope as text on the graph
-    text_x = min_val + (max_val - min_val) * 0.1  # Position text slightly to the right of the minimum value
-    text_y = max_val - (max_val - min_val) * 0.2   # Position text slightly below the maximum value
-    plt.text(text_x, text_y, f"Slope: {slope:.3f}", fontsize=10, color='green', bbox=dict(facecolor='white', alpha=0.5))
+    # Set axis limits based on the data
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
 
     # Add labels, title, and legend
     plt.xlabel(xlabel)
@@ -65,18 +70,21 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
     plt.title(title)
     plt.legend()
     plt.grid()
+
     # Save the plot
     plt.savefig(output_path)
+    print(f"Plot saved to {output_path}")
+
 
 # Plot comparisons for each parameter
 plot_comparison(dm1, cpp_distance2, dm_error1,
-                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison.png")
+                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison1.png")
 
 plot_comparison(loga1, cpp_loga2, loga_error1,
-                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison.png")
+                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison1.png")
 
 plot_comparison(met1, cpp_met2, met_error1,
-                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison.png")
+                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison1.png")
 
 plot_comparison(av1, cpp_ebv2, av_error1, 
-                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison.png")
+                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison1.png")
