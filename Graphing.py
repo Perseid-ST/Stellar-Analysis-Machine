@@ -47,7 +47,7 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
 
     min_val = min(min(x), min(y))  # Determine the minimum value for the line
     max_val = max(max(x), max(y))  # Determine the maximum value for the line
-    plt.plot([min_val, max_val], [min_val, max_val], linestyle='--', color='blue', label='CPP = My Data')
+    plt.plot([min_val, max_val], [min_val, max_val], linestyle='--', color='blue', label='CPP = SAM')
 
     #calculate best fit line for my data
     slope, intercept = np.polyfit(x, y, 1)
@@ -70,13 +70,13 @@ def plot_comparison(x, y, xerr,  title, xlabel, ylabel, output_file):
 
 # Plot comparisons for each parameter
 plot_comparison(dm1, cpp_distance2, dm_error1,
-                "Distance Comparison", "My Data (kpc)", "CPP Distance", "distance_comparison.png")
+                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison.png")
 
 plot_comparison(loga1, cpp_loga2, loga_error1,
-                "Log(Age) Comparison", "My Data (Log(Age))", "CPP Log(Age)", "loga_comparison.png")
+                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison.png")
 
 plot_comparison(met1, cpp_met2, met_error1,
-                "Metallicity Comparison", "My Data (Metallicity)", "CPP Metallicity", "metallicity_comparison.png")
+                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison.png")
 
 plot_comparison(av1, cpp_ebv2, av_error1, 
-                "Extinction Comparison", "My Data (E_BV)", "CPP E(B-V)", "extinction_comparison.png")
+                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison.png")
