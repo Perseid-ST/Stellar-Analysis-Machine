@@ -66,8 +66,8 @@ isochs = asteca.Isochrones(
     isochs_path="docs/_static/parsec/",
     magnitude="Gmag",
     color=("G_BPmag", "G_RPmag"),
-    magnitude_effl=6390.7,
-    color_effl=(5182.58, 7825.08),
+    magnitude_effl=5822.39,
+    color_effl=(5035.75, 7619.96),
     verbose=2
 )
 
@@ -153,7 +153,7 @@ likelihood = asteca.Likelihood(filtered_cluster)
 
 met_min, met_max = 0.01, 0.02
 loga_min, loga_max = 7.0, 10.1
-dm_min, dm_max = 7.0, 12.0
+dm_min, dm_max = 7.0, 15.0
 Av_min, Av_max = 0.0, 2.0
 
 # Define a pyABC Distribution(). Uniform distributions are employed for all the parameters here but the user can of course change this as desired. See the pyABC docs for more information.
