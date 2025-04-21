@@ -4,34 +4,38 @@ import numpy as np
 import os
 
 # Load the two CSV files
-file1 = "trial1.csv"
+file1 = "75 with adj ranges.csv"
 file2 = "ClusterProPlus.csv"
-data1 = pd.read_csv(file1) #from trial1.csv
-data2 = pd.read_csv(file2) #from Cluster Pro Plus.csv
+data1 = pd.read_csv(file1)  # from trial1.csv
+data2 = pd.read_csv(file2)  # from Cluster Pro Plus.csv
 
-# Extract columns for comparison
-#distance
-dm1 = data1['distance_kpc']
-dm_error1 = data1['distance_kpc_error']  
-cpp_distance2 = data2['CPP Distance'] 
+# Combine the two files into one DataFrame
+# If there's a common key, use merge. Otherwise, use concat.
+combined_data = pd.concat([data1, data2], axis=1)
 
-#age
-cpp_loga2 = data2['CPP Log(Age)']
-loga1 = data1['loga']
-loga_error1 = data1['loga _error']
+# Filter out rows with NaN values in the relevant columns
+filtered_data = combined_data.dropna(subset=['distance_kpc', 'distance_kpc_error', 'CPP Distance',
+                                             'loga', 'loga _error', 'CPP Log(Age)',
+                                             'met', 'met  _error', 'CPP Metallicity',
+                                             'E_BV', 'E_BV_error', 'CPP E(B-V)'])
 
-#metallicity
-cpp_met2 = data2['CPP Metallicity']
-met1 = data1['met']
-met_error1 = data1['met  _error']
+# Extract filtered columns for plotting
+dm1 = filtered_data['distance_kpc']
+dm_error1 = filtered_data['distance_kpc_error']
+cpp_distance2 = filtered_data['CPP Distance']
 
-#extinction
-cpp_ebv2 = data2['CPP E(B-V)']
-av1 = data1['E_BV']
-av_error1 = data1['E_BV_error']
+loga1 = filtered_data['loga']
+loga_error1 = filtered_data['loga _error']
+cpp_loga2 = filtered_data['CPP Log(Age)']
 
+met1 = filtered_data['met']
+met_error1 = filtered_data['met  _error']
+cpp_met2 = filtered_data['CPP Metallicity']
 
-# Function to plot comparisons
+av1 = filtered_data['E_BV']
+av_error1 = filtered_data['E_BV_error']
+cpp_ebv2 = filtered_data['CPP E(B-V)']
+
 # Function to plot comparisons
 def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
     # Ensure the output folder exists
@@ -78,13 +82,13 @@ def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
 
 # Plot comparisons for each parameter
 plot_comparison(dm1, cpp_distance2, dm_error1,
-                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison1.png")
+                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison75.png")
 
 plot_comparison(loga1, cpp_loga2, loga_error1,
-                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison1.png")
+                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison75.png")
 
 plot_comparison(met1, cpp_met2, met_error1,
-                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison1.png")
+                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison75.png")
 
-plot_comparison(av1, cpp_ebv2, av_error1, 
-                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison1.png")
+plot_comparison(av1, cpp_ebv2, av_error1,
+                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison75.png")

@@ -105,7 +105,7 @@ probs_fastmp = memb.fastmp()
 #plot FastMP results... Not required for the final product
 plt.title(f"fastMP Membership Probabilities for {cluster_name}")
 plt.scatter(df["bp_rp"], df["phot_g_mean_mag"], c='grey', alpha=.25)
-msk = probs_fastmp > 0.5
+msk = probs_fastmp > 0.75
 plt.scatter(df["bp_rp"][msk], df["phot_g_mean_mag"][msk], c=probs_fastmp[msk], ec='k', lw=.5)
 plt.gca().invert_yaxis()
 plt.xlim(0, 2.5)
@@ -114,7 +114,7 @@ plt.colorbar()
 plt.xlabel("G_BP - G_RP")
 plt.ylabel("Gmag")
 # Define the folder name
-output_folder = "FastMP"
+output_folder = "FastMP_75"
 
 # Create the folder if it doesn't exist
 if not os.path.exists(output_folder):
@@ -151,10 +151,10 @@ synthcl.calibrate(filtered_cluster)
 # Instantiate the likelihood
 likelihood = asteca.Likelihood(filtered_cluster)
 
-met_min, met_max = 0.01, 0.02
-loga_min, loga_max = 7.0, 9.5
-dm_min, dm_max = 8.0, 10.5
-Av_min, Av_max = 0.0, 2.0
+met_min, met_max = 0.01, 0.02 #originally 0.01 to 0.02
+loga_min, loga_max = 7.0, 10.1 # originally 7.0 to 9.5
+dm_min, dm_max = 7.0, 17.0 # originally 7.0 to 10.5
+Av_min, Av_max = 0.0, 2.0 # originally 0.0 to 2.0
 
 # Define a pyABC Distribution(). Uniform distributions are employed for all the parameters here but the user can of course change this as desired. See the pyABC docs for more information.
 priors = pyabc.Distribution(
@@ -230,7 +230,7 @@ plt.figure()
 pyabc.visualization.plot_credible_intervals(history)
 
 # Define the folder name
-output_folder = "credible_intervals"
+output_folder = "credible_intervals_75"
 
 # Create the folder if it doesn't exist
 if not os.path.exists(output_folder):
@@ -276,7 +276,7 @@ cmd_plot(color[binary_msk], mag[binary_msk], "Binary systems", ax2)
 isoch_arr = synthcl.get_isochrone(fit_params)
 # Plot the isochrone
 plt.plot(isoch_arr[1], isoch_arr[0], c="k")
-plt.savefig(f"cmd_plot_{cluster_name}.png", dpi=300)
+#plt.savefig(f"cmd_plot_{cluster_name}.png", dpi=300)
 
 #-------------------------------------------------------------------------------------------
 # Plot the filtered cluster and isochrone
@@ -331,7 +331,7 @@ plt.ylabel("Gmag")
 plt.title(f"CMD with Isochrone for {cluster_name}")
 plt.legend()
 
-output_folder = "figures"
+output_folder = "figures_75"
 
 # Create the folder if it doesn't exist
 if not os.path.exists(output_folder):
