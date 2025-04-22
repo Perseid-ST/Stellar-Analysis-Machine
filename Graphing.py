@@ -61,8 +61,19 @@ def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
 
     # Calculate best fit line for my data
     slope, intercept = np.polyfit(x, y, 1)
+    y_pred = slope * x + intercept  # Predicted y values
     best_fit_label = f"Best Fit Line: y = {slope:.3f}x + {intercept:.3f}"
-    plt.plot(x, slope * x + intercept, color='green', label=best_fit_label)
+    plt.plot(x, y_pred, color='green', label=best_fit_label)
+
+    # Calculate R² value
+    ss_res = np.sum((y - y_pred) ** 2)  # Residual sum of squares
+    ss_tot = np.sum((y - np.mean(y)) ** 2)  # Total sum of squares
+    r_squared = 1 - (ss_res / ss_tot)
+
+    # Add the slope and R² as text on the graph
+    text_x = x_min + (x_max - x_min)*0.01  # Position text slightly to the right of the minimum x value
+    text_y = y_max + (y_max - y_max)*0.5 # Position text slightly below the maximum y value
+    plt.text(text_x, text_y, f"R²: {r_squared:.3f}", fontsize=10, color='green', bbox=dict(facecolor='white', alpha=0.5))
 
     # Set axis limits based on the data
     plt.xlim(x_min, x_max)
