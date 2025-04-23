@@ -6,7 +6,12 @@ from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 import numpy as np
 import sys
+import matplotlib.pyplot as plt
+import os
+import pyabc 
 
+#End of Import Statements-------------------------------------------------
+# Set up Simbad to use the default name resolver
 # Ensure a cluster name is provided as a command-line argument
 if len(sys.argv) < 2:
     print("Error: No cluster name provided.")
@@ -14,6 +19,8 @@ if len(sys.argv) < 2:
 
 # Retrieve the cluster name from the command-line arguments
 cluster_name = sys.argv[1]
+
+#cluster_name = "NGC 6441"
 
 #cluster_name = input("Enter the name of the stellar cluster: ")
 #removed for processing clusters from csv
@@ -54,196 +61,124 @@ df = pd.read_csv(file_name)
 
 import asteca
 
-#define columns of the dataframe
-my_cluster = asteca.cluster(
-    obs_df = df,
-    ra = "ra",
-    dec = "dec",
-    magnitude="phot_g_mean_mag",
-    e_mag="e_Gmag",
-    color="bp_rp",
-    e_color="e_BP_RP",
-    pmra="pmra",
-    e_pmra="pmra_error",
-    pmde="pmdec",
-    e_pmde="pmdec_error",
-    plx="parallax",
-    e_plx="parallax_error",
+isochs = asteca.Isochrones(
+    model='parsec',
+    isochs_path="docs/_static/parsec/",
+    magnitude="Gmag",
+    color=("G_BPmag", "G_RPmag"),
+    magnitude_effl=5822.39,
+    color_effl=(5035.75, 7619.96),
+    verbose=2
 )
-import os 
-os.environ["XDG_SESSION_TYPE"] = "xcb"
-import matplotlib.pyplot as plt
 
-#plots the cluster on a color-magnitude diagram
-ax =  plt.subplot()
-asteca.plot.cluster(my_cluster,ax)
-plt.title("Color-Magnitude Diagram")
-#plt.show()
-#will have to exit first for code to continue running
+synthcl = asteca.Synthetic(isochs, seed=457304, verbose=2)
 
+my_cluster = asteca.Cluster(
+    ra = df["ra"],
+    dec = df["dec"],
+    magnitude=df["phot_g_mean_mag"],
+    e_mag=df["e_Gmag"],
+    color=df["bp_rp"],
+    e_color=df["e_BP_RP"],
+    pmra=df["pmra"],
+    e_pmra=df["pmra_error"],
+    pmde=df["pmdec"],
+    e_pmde=df["pmdec_error"],
+    plx=df["parallax"],
+    e_plx=df["parallax_error"],
+    verbose=2
+)
+
+#using FastMP
+# Estimate the cluster's center coordinates, use the default algorithm
 my_cluster.get_center()
 
-#plots the cluster in ra and dec with the cluster center marked with a red x
-ax = plt.subplot(221)
-asteca.plot.radec(my_cluster, ax)
-plt.scatter(my_cluster.radec_c[0], my_cluster.radec_c[1], marker='x', s=25, c='r')
-plt.xlabel("ra")
-plt.ylabel("dec")
-plt.title("RA and Dec")
-
-#plots the cluster in pmra and pmde with the cluster center marked with a red x
-ax = plt.subplot(222)
-plt.scatter(my_cluster.pmra_v, my_cluster.pmde_v, c='k', alpha=.15, s=5)
-plt.scatter(my_cluster.pms_c[0], my_cluster.pms_c[1], marker='x', s=25, c='r')
-plt.xlabel("pmra")
-plt.ylabel("pmde")
-plt.title("Proper Motions")
-
-#plots the cluster in paralax with the cluster center marked with a red dashed line
-ax = plt.subplot(223)
-plt.hist(my_cluster.plx_v, 30)
-plt.axvline(my_cluster.plx_c, c='r', ls=':')
-plt.xlabel("plx")
-plt.title("Parallax")
-#plt.show()
-
-# Estimate the cluster's center coordinates
-my_cluster.get_center()
-
-# Add a radius attribute, required for the ``bayesian`` method
-my_cluster.radius = 0.05
-
-# Estimate the number of cluster members
+# Estimate the number of cluster members, use the default algorithm
 my_cluster.get_nmembers()
 
-# Define a ``membership`` object
-memb = asteca.membership(my_cluster)
+# Define a `membership` object
+memb = asteca.Membership(my_cluster, verbose=2)
 
-# Run ``fastmp`` method
+# Run `fastmp` method
 probs_fastmp = memb.fastmp()
 
-# Run ``bayesian`` method
-#probs_bayes = memb.bayesian()
-
-# fastMP membership
-plt.subplot(121)
-plt.title("fastMP")
-plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
-msk = probs_fastmp > 0.8
-plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_fastmp[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
+#plot FastMP results... Not required for the final product
+plt.title(f"fastMP Membership Probabilities for {cluster_name}")
+plt.scatter(df["bp_rp"], df["phot_g_mean_mag"], c='grey', alpha=.25)
+msk = probs_fastmp > 0.75
+plt.scatter(df["bp_rp"][msk], df["phot_g_mean_mag"][msk], c=probs_fastmp[msk], ec='k', lw=.5)
 plt.gca().invert_yaxis()
 plt.xlim(0, 2.5)
 plt.colorbar()
-plt.title("fastMP")
 
-# Bayesian memberhsip # will not work for some reason??
-# log of clusters bayesian membership is not working:
-#m15--> it was zero but now its too big *shrug*
+plt.xlabel("G_BP - G_RP")
+plt.ylabel("Gmag")
+# Define the folder name
+output_folder = "FastMP_75"
 
-#plt.subplot(122)
-#plt.title("Bayesian")
-#plt.scatter(df['bp_rp'], df['phot_g_mean_mag'], c='grey', alpha=.25)
-#msk = probs_bayes > 0.9
-#plt.scatter(df['bp_rp'][msk], df['phot_g_mean_mag'][msk], c=probs_bayes[msk], ec='k', lw=.5, vmin=0.5, vmax=1)
-#plt.gca().invert_yaxis()
-#plt.xlim(0, 2.5)
-#plt.colorbar()
-#plt.title("Bayesian")
+# Create the folder if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
-#plt.show()
+# Save the plot in the specified folder
+output_path = os.path.join(output_folder, f"fastmp_{cluster_name}.png")
+plt.savefig(output_path, dpi=300)
 
+print(f"Figure saved to {output_path}")
 
+filtered_df = df[msk]
 
-isochs = asteca.isochrones(
-    model="PARSEC",
-    isochs_path="isochrones/",# Isochrones need to be saved in the project file
-    magnitude="Gmag",
-    color=("G_BPmag", "G_RPmag"),
-    magnitude_effl= 5822.39,#6390.7 #wavelength V filter in Angstroms
-    z_to_FeH=0.0152,
-    color_effl=(5035.75, 7619.96), #(5182.58, 7825.08) #wavelengths of the BP and RP filters in Angstroms
+# Create a new cluster object with the filtered data
+filtered_cluster = asteca.Cluster(
+    ra=filtered_df["ra"],
+    dec=filtered_df["dec"],
+    magnitude=filtered_df["phot_g_mean_mag"],
+    e_mag=filtered_df["e_Gmag"],
+    color=filtered_df["bp_rp"],
+    e_color=filtered_df["e_BP_RP"],
+    pmra=filtered_df["pmra"],
+    e_pmra=filtered_df["pmra_error"],
+    pmde=filtered_df["pmdec"],
+    e_pmde=filtered_df["pmdec_error"],
+    plx=filtered_df["parallax"],
+    e_plx=filtered_df["parallax_error"],
+    verbose=2
 )
 
-my_cluster_filtered = asteca.cluster(
-    obs_df = df[msk],
-    ra = "ra",
-    dec = "dec",
-    magnitude="phot_g_mean_mag",
-    e_mag="e_Gmag",
-    color="bp_rp",
-    e_color="e_BP_RP",
-    pmra="pmra",
-    e_pmra="pmra_error",
-    pmde="pmdec",
-    e_pmde="pmdec_error",
-    plx="parallax",
-    e_plx="parallax_error",
-)
+# Calibrate the `synthcl` object
+synthcl.calibrate(filtered_cluster)
 
-# Synthetic cluster parameters
-synthc1 = asteca.synthetic( isochs, seed=457304)#457304
+# Instantiate the likelihood
+likelihood = asteca.Likelihood(filtered_cluster)
 
-# Calibrate the synthetic cluster synthcl1
-fix_params = {
-    "alpha":0.0, #binary fraction
-    "beta":1.0, #binary fraction, if you want only singular stars both must be set to 0.0
-    "Rv":3.1, 
-    "DR":0.0,
-    #"dm": 11.0,
-    #"Av": .4285,#1328
-    #"met": 0.3,
-    #"loga": 7
-    }
-#alpha is binary fraction
-#beta is binary fraction 
-#Rv is selective extinction 3.1
-#DR is differential reddening
-synthc1.calibrate(my_cluster_filtered,fix_params)
+met_min, met_max = 0.01, 0.02 #originally 0.01 to 0.02
+loga_min, loga_max = 7.0, 10.1 # originally 7.0 to 9.5
+dm_min, dm_max = 7.0, 17.0 # originally 7.0 to 10.5
+Av_min, Av_max = 0.0, 2.0 # originally 0.0 to 2.0
 
-#isoch_arr = asteca.plot.get_isochrone(synthc1, fix_params)
-
-#ax = plt.subplot()
-#asteca.plot.cluster(my_cluster_filtered, ax)
-#asteca.plot.synthetic(synthc1, ax, fix_params, isoch_arr)
-#plt.title(f"Synthetic Cluster with Isochrone: {cluster_name}")
-#plt.gca().invert_yaxis()
-#plt.show()
-
-# Instantiat the likelihood
-likelihood = asteca.likelihood(my_cluster)
-
-def model(fit_params):
-    """Generate synthetic cluster. pyABC expects a dictionary from this function, so we return a dictionary with a single element
-    """
-    #print(f"fit_params: {fit_params}")  # Debugging
-    synth_clust = synthc1.generate(fit_params)#loga is determined before generation
-    #print(f"synthetic cluster: {synth_clust}")  # Debugging
-    synth_dict = {"data":synth_clust}
-    #print(f"synthetic cluster: {synth_dict}")  # Debugging
-    return synth_dict
-
-def distance(syth_dict, _):
-    """The likelihood returned works as a distance whihc means that the optimal value is 0.0
-    """
-    return likelihood.get(syth_dict["data"])
-
-import pyabc
-
-#print(synthc1.met_age_dict)
-met_min, met_max = [0.0005, 0.0305] #metallicity
-loga_min, loga_max = [7.0, 10.1] #because of m15 which is almost as old as the universe, this gets upped to 10.1 from 9.5
-
-# Define a pyABC Distribution(). Uniform distributions are employed for all the parameters
-# here but the user can of course change this as desired. See the pyABC docs for more
-# information.
+# Define a pyABC Distribution(). Uniform distributions are employed for all the parameters here but the user can of course change this as desired. See the pyABC docs for more information.
 priors = pyabc.Distribution(
     {
         "met": pyabc.RV("uniform", met_min, met_max - met_min),
         "loga": pyabc.RV("uniform", loga_min, loga_max - loga_min),
-        "dm": pyabc.RV("uniform", 7, 12 - 7), #Distance Modulus
-        "Av": pyabc.RV("uniform", 0.0, 1) #Total Extinction
+        "dm": pyabc.RV("uniform", dm_min, dm_max - dm_min),
+        "Av": pyabc.RV("uniform", Av_min, Av_max - Av_min)
     }
 )
+
+def model(fit_params):
+    """Generate a synthetic cluster."""
+    # Call generate method with the fit_params dictionary
+    synth_clust = synthcl.generate(fit_params)
+
+    # pyABC expects a dictionary from this function, so we return a
+    # dictionary with a single element.
+    return {"data": synth_clust}
+
+def distance(synth_dict, _):
+    """The likelihood returned works as a distance which means that the optimal value is 0.0.
+    """
+    return likelihood.get(synth_dict["data"])
 
 # Define pyABC parameters
 pop_size = 100
@@ -253,14 +188,14 @@ abc = pyabc.ABCSMC(
     distance,
     population_size=pop_size
 )
-#print(f"ABC: {abc}")
-# This is a temporary file required by pyABC
+
+# Define a temporary file required by pyABC
 import os
 import tempfile
 db_path = "sqlite:///" + os.path.join(tempfile.gettempdir(), "pyABC.db")
 abc.new(db_path)
 
-history = abc.run(minimum_epsilon=0.01, max_nr_populations=10)
+history = abc.run(minimum_epsilon=0.01, max_nr_populations=20)
 
 final_dist = pyabc.inference_util.eps_from_hist(history)
 print("Final minimized distance: {:.2f} ({:.0f}%)".format(final_dist, 100*final_dist))
@@ -273,70 +208,139 @@ print("Effective sample size: {:.0f}".format(ESS))
 
 print("\nParameters estimation:")
 print("----------------------")
-
 parameter_stats = []
-
+fit_params = {}
 for k in df.keys():
+    # Extract medians for the fitted parameters
     _median = pyabc.weighted_statistics.weighted_median(df[k].values, w)
+    fit_params[k] = _median
+    # Extract STDDEV for the fitted parameters
     _std = pyabc.weighted_statistics.weighted_std(df[k].values, w)
     print("{:<5}: {:.3f}".format(k, _median))
     print("{:<5}_error: {:.3f}".format(k, _std))
-    parameter_stats.append(f"{k:<5}: {_median:.3f} ± {_std:.3f}") #seperated for process cluster.py
-    #original:
     #print("{:<5}: {:.3f} +/- {:.3f}".format(k, _median, _std))
-
-#print(df.head())  # Inspect the posterior distributions
-
-#print(synthc1.met_age_dict)
+    parameter_stats.append(f"{k}: {round(_median, 3)} +/- {round(_std, 3)}")
 
 pyabc.settings.set_figure_params("pyabc")  # for beautified plots
 
-# Matrix of 1d and 2d histograms over all parameters
-#pyabc.visualization.plot_histogram_matrix(history)
 
+#---------------------------------------------------------------------------------------------
 # Credible intervals over time
-#pyabc.visualization.plot_credible_intervals(history)
+plt.figure()
+pyabc.visualization.plot_credible_intervals(history)
 
-# Extract medians for the fitted parameters
-fit_params = {
-    k: pyabc.weighted_statistics.weighted_median(df[k].values, w) for k in df.keys()
-}
-print(fit_params)
-#fit_params['met'] = 0.0152 #how to get from mH value to 
-import matplotlib.pyplot as plt
-#fig, (ax1, ax2) = plt.subplots(1,2)
+# Define the folder name
+output_folder = "credible_intervals_75"
 
-# Extract medians and standard deviations
+# Create the folder if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
-isoch_arr = asteca.plot.get_isochrone(synthc1, fit_params)
+# Save the plot in the specified folder
+output_path = os.path.join(output_folder, f"credible_intervals_{cluster_name}.png")
+plt.savefig(output_path, dpi=300)
 
-ax = plt.subplot()
-asteca.plot.cluster(my_cluster_filtered, ax)
-asteca.plot.synthetic(synthc1, ax, fit_params, isoch_arr)
+print(f"Figure saved to {output_path}")
+
+# Generate the "best fit" synthetic cluster using these parameters
+synth_arr = synthcl.generate(fit_params)
+
+#--------------------------------------------------------------------------------------------
+# Plot the CMD for the observed and synthetic clusters
+# Function to generate a CMD plot
+
+def cmd_plot(color, mag, label, ax=None):
+    """Function to generate a CMD plot"""
+    if ax is None:
+        ax = plt.subplot(111)
+    label = label + f", N={len(mag)}"
+    ax.scatter(color, mag, alpha=0.25, label=label)
+    ax.legend()
+    ax.set_ylim(mag.max() + 1, mag.min() - 1)  # Invert y axis
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+# Observed cluster
+cmd_plot(filtered_cluster.color, filtered_cluster.mag, "Observed stars", ax1)
+
+# Synthetic cluster
+# Boolean mask identifying the binary systems
+binary_msk = ~np.isnan(synth_arr[-1])
+# Extract magnitude and color
+mag, color = synth_arr[0], synth_arr[1]
+# Plot single systems
+cmd_plot(color[~binary_msk], mag[~binary_msk], "Single systems", ax2)
+## Plot binary systems
+cmd_plot(color[binary_msk], mag[binary_msk], "Binary systems", ax2)
+
+# Get isochrone associated to the synthetic cluster
+isoch_arr = synthcl.get_isochrone(fit_params)
+# Plot the isochrone
+plt.plot(isoch_arr[1], isoch_arr[0], c="k")
+#plt.savefig(f"cmd_plot_{cluster_name}.png", dpi=300)
+
+#-------------------------------------------------------------------------------------------
+# Plot the filtered cluster and isochrone
+plt.figure(figsize=(8, 6))
+
+# Plot the filtered cluster
+plt.scatter(
+    filtered_cluster.color, 
+    filtered_cluster.magnitude, 
+    c='blue', 
+    alpha=0.5, 
+    label="Filtered Cluster"
+)
+
+# Overlay the synthetic cluster as triangles
+plt.scatter(
+    synth_arr[1],  # Synthetic cluster color
+    synth_arr[0],  # Synthetic cluster magnitude
+    c='green', 
+    alpha=0.7, 
+    marker='^',  # Triangle marker
+    label="Synthetic Cluster"
+)
+
+# Plot the isochrone
+plt.plot(
+    isoch_arr[1],  # Isochrone color
+    isoch_arr[0],  # Isochrone magnitude
+    c="red", 
+    label="Isochrone"
+)
 
 # Add priors as text annotations on the plot
 x_text = 0.05  # X-coordinate for the text (relative to the plot)
 y_text = 0.95  # Y-coordinate for the text (relative to the plot)
 for i, stat in enumerate(parameter_stats):
-    ax.text(
+    plt.text(
         x_text, y_text - i * 0.05,  # Adjust Y-coordinate for each line
         stat,
-        transform=ax.transAxes,  # Use relative coordinates
+        transform=plt.gca().transAxes,  # Use relative coordinates
         fontsize=10,
         verticalalignment="top",
         bbox=dict(boxstyle="round", facecolor="white", alpha=0.5)  # Optional: Add a background box
     )
 
-plt.title(f"Synthetic Cluster with Isochrone: {cluster_name}")
+# Invert the y-axis (as is standard for CMDs)
 plt.gca().invert_yaxis()
-#plt.show()
 
-#asteca.plot.cluster(my_cluster_filtered, ax1)
-#asteca.plot.synthetic(synthc1, ax2, fit_params, isoch_arr)
+# Add labels, legend, and title
+plt.xlabel("G_BP - G_RP")
+plt.ylabel("Gmag")
+plt.title(f"CMD with Isochrone for {cluster_name}")
+plt.legend()
 
+output_folder = "figures_75"
 
-#asteca.plot.synthetic(synthc1, ax, fit_params, isoch_arr)
-#plt.title("Synthetic Cluster with Isochrone")
-#plt.show()
+# Create the folder if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
+# Save the plot in the specified folder
+output_path = os.path.join(output_folder, f"cmd_with_isochrone_{cluster_name}.png")
+plt.savefig(output_path, dpi=300)
+
+print(f"Figure saved to {output_path}")
 
 os.remove(file_name) #deletes the csv file after the code is done running
