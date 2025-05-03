@@ -23,4 +23,13 @@ This takes a minute to run
 6) Have the list of clusters in a .csv file
 7) Type "python process_cluster.py" or "python3 process_cluster.py"
 8) Enter the name of the .csv file when prompted
-9) Use "Graphing.py" tp compare data
+9) Use "Graphing.py" to compare data
+
+## Acknowledgements ##
+This work has made use of data from the European Space Agency (ESA) mission
+Gaia (https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis
+Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC
+has been provided by national institutions, in particular the institutions participating in
+the Gaia Multilateral Agreement.​
+
+This research has made use of the SIMBAD database, operated at CDS, Strasbourg, France​
