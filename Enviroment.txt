@@ -1,4 +1,6 @@
-Package            Version
+asteca astropy astropy-iers-data astroquery backports.tarfile beautifulsoup4 certifi cffi charset-normalizer click cloudpickle contourpy cryptography cycler dask distributed fast-histogram fonttools fsspec gitdb GitPython greenlet html5lib idna importlib_metadata jabbar jaraco.classes jaraco.context jaraco.functools jeepney Jinja2 joblib keyring kiwisolver locket MarkupSafe matplotlib more-itertools msgpack numpy packaging pandas partd pillow pip psutil pyabc pycparser pyerfa pyparsing python-dateutil pytz pyvo PyYAML redis requests scikit-learn scipy SecretStorage setuptools six smmap sortedcontainers soupsieve SQLAlchemy tblib threadpoolctl toolz tornado typing_extensions tzdata urllib3 webencodings zict zipp
+
+Package            Version                                 
 ------------------ -------------------
 asteca             0.6.0
 astropy            7.0.1
