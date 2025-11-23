@@ -8,9 +8,40 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 import os
-import pyabc 
+import tempfile
+import pyabc
+
+import asteca
 
 #End of Import Statements-------------------------------------------------
+
+def model(fit_params):
+    """Generate a synthetic cluster."""
+    # Call generate method with the fit_params dictionary
+    synth_clust = synthcl.generate(fit_params)
+
+    # pyABC expects a dictionary from this function, so we return a
+    # dictionary with a single element.
+    return {"data": synth_clust}
+
+def distance(synth_dict, _):
+    """The likelihood returned works as a distance which means that the optimal value is 0.0.
+    """
+    return likelihood.get(synth_dict["data"])
+
+#--------------------------------------------------------------------------------------------
+# Plot the CMD for the observed and synthetic clusters
+# Function to generate a CMD plot
+
+def cmd_plot(color, mag, label, ax=None):
+    """Function to generate a CMD plot"""
+    if ax is None:
+        ax = plt.subplot(111)
+    label = label + f", N={len(mag)}"
+    ax.scatter(color, mag, alpha=0.25, label=label)
+    ax.legend()
+    ax.set_ylim(mag.max() + 1, mag.min() - 1)  # Invert y axis
+
 # Set up Simbad to use the default name resolver
 # Ensure a cluster name is provided as a command-line argument
 if len(sys.argv) < 2:
@@ -58,8 +89,6 @@ file = df.to_csv(cluster_name + ".csv", index=False)
 file_name = cluster_name + ".csv" #file must be located inside of this directory
 
 df = pd.read_csv(file_name)
-
-import asteca
 
 isochs = asteca.Isochrones(
     model='parsec',
@@ -166,20 +195,6 @@ priors = pyabc.Distribution(
     }
 )
 
-def model(fit_params):
-    """Generate a synthetic cluster."""
-    # Call generate method with the fit_params dictionary
-    synth_clust = synthcl.generate(fit_params)
-
-    # pyABC expects a dictionary from this function, so we return a
-    # dictionary with a single element.
-    return {"data": synth_clust}
-
-def distance(synth_dict, _):
-    """The likelihood returned works as a distance which means that the optimal value is 0.0.
-    """
-    return likelihood.get(synth_dict["data"])
-
 # Define pyABC parameters
 pop_size = 100
 abc = pyabc.ABCSMC(
@@ -190,8 +205,6 @@ abc = pyabc.ABCSMC(
 )
 
 # Define a temporary file required by pyABC
-import os
-import tempfile
 db_path = "sqlite:///" + os.path.join(tempfile.gettempdir(), "pyABC.db")
 abc.new(db_path)
 
@@ -206,7 +219,8 @@ df, w = history.get_distribution()
 ESS = pyabc.weighted_statistics.effective_sample_size(w)
 print("Effective sample size: {:.0f}".format(ESS))
 
-print("\nParameters estimation:")
+print()
+print("Parameters estimation:")
 print("----------------------")
 parameter_stats = []
 fit_params = {}
@@ -244,19 +258,6 @@ print(f"Figure saved to {output_path}")
 
 # Generate the "best fit" synthetic cluster using these parameters
 synth_arr = synthcl.generate(fit_params)
-
-#--------------------------------------------------------------------------------------------
-# Plot the CMD for the observed and synthetic clusters
-# Function to generate a CMD plot
-
-def cmd_plot(color, mag, label, ax=None):
-    """Function to generate a CMD plot"""
-    if ax is None:
-        ax = plt.subplot(111)
-    label = label + f", N={len(mag)}"
-    ax.scatter(color, mag, alpha=0.25, label=label)
-    ax.legend()
-    ax.set_ylim(mag.max() + 1, mag.min() - 1)  # Invert y axis
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 # Observed cluster
