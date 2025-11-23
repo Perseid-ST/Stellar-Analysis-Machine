@@ -3,38 +3,53 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# Load the two CSV files
-file1 = "75 with adj ranges.csv"
-file2 = "ClusterProPlus.csv"
-data1 = pd.read_csv(file1)  # from trial1.csv
-data2 = pd.read_csv(file2)  # from Cluster Pro Plus.csv
+def main():
+    # Load the two CSV files
+    file1 = "75 with adj ranges.csv"
+    file2 = "ClusterProPlus.csv"
+    data1 = pd.read_csv(file1)  # from trial1.csv
+    data2 = pd.read_csv(file2)  # from Cluster Pro Plus.csv
 
-# Combine the two files into one DataFrame
-# If there's a common key, use merge. Otherwise, use concat.
-combined_data = pd.concat([data1, data2], axis=1)
+    # Combine the two files into one DataFrame
+    # If there's a common key, use merge. Otherwise, use concat.
+    combined_data = pd.concat([data1, data2], axis=1)
 
-# Filter out rows with NaN values in the relevant columns
-filtered_data = combined_data.dropna(subset=['distance_kpc', 'distance_kpc_error', 'CPP Distance',
-                                             'loga', 'loga _error', 'CPP Log(Age)',
-                                             'met', 'met  _error', 'CPP Metallicity',
-                                             'E_BV', 'E_BV_error', 'CPP E(B-V)'])
+    # Filter out rows with NaN values in the relevant columns
+    filtered_data = combined_data.dropna(subset=['distance_kpc', 'distance_kpc_error', 'CPP Distance',
+                                                 'loga', 'loga _error', 'CPP Log(Age)',
+                                                 'met', 'met  _error', 'CPP Metallicity',
+                                                 'E_BV', 'E_BV_error', 'CPP E(B-V)'])
 
-# Extract filtered columns for plotting
-dm1 = filtered_data['distance_kpc']
-dm_error1 = filtered_data['distance_kpc_error']
-cpp_distance2 = filtered_data['CPP Distance']
+    # Extract filtered columns for plotting
+    dm1 = filtered_data['distance_kpc']
+    dm_error1 = filtered_data['distance_kpc_error']
+    cpp_distance2 = filtered_data['CPP Distance']
 
-loga1 = filtered_data['loga']
-loga_error1 = filtered_data['loga _error']
-cpp_loga2 = filtered_data['CPP Log(Age)']
+    loga1 = filtered_data['loga']
+    loga_error1 = filtered_data['loga _error']
+    cpp_loga2 = filtered_data['CPP Log(Age)']
 
-met1 = filtered_data['met']
-met_error1 = filtered_data['met  _error']
-cpp_met2 = filtered_data['CPP Metallicity']
+    met1 = filtered_data['met']
+    met_error1 = filtered_data['met  _error']
+    cpp_met2 = filtered_data['CPP Metallicity']
 
-av1 = filtered_data['E_BV']
-av_error1 = filtered_data['E_BV_error']
-cpp_ebv2 = filtered_data['CPP E(B-V)']
+    av1 = filtered_data['E_BV']
+    av_error1 = filtered_data['E_BV_error']
+    cpp_ebv2 = filtered_data['CPP E(B-V)']
+
+
+    # Plot comparisons for each parameter
+    plot_comparison(dm1, cpp_distance2, dm_error1,
+                    "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison75.png")
+
+    plot_comparison(loga1, cpp_loga2, loga_error1,
+                    "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison75.png")
+
+    plot_comparison(met1, cpp_met2, met_error1,
+                    "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison75.png")
+
+    plot_comparison(av1, cpp_ebv2, av_error1,
+                    "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison75.png")
 
 # Function to plot comparisons
 def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
@@ -90,16 +105,5 @@ def plot_comparison(x, y, xerr, title, xlabel, ylabel, output_file):
     plt.savefig(output_path)
     print(f"Plot saved to {output_path}")
 
-
-# Plot comparisons for each parameter
-plot_comparison(dm1, cpp_distance2, dm_error1,
-                "Distance Comparison", "SAM Distance (kpc)", "CPP Distance", "distance_comparison75.png")
-
-plot_comparison(loga1, cpp_loga2, loga_error1,
-                "Log(Age) Comparison", "SAM Age (Log(Age))", "CPP Log(Age)", "loga_comparison75.png")
-
-plot_comparison(met1, cpp_met2, met_error1,
-                "Metallicity Comparison", "SAM Metallicity", "CPP Metallicity", "metallicity_comparison75.png")
-
-plot_comparison(av1, cpp_ebv2, av_error1,
-                "Extinction Comparison", "SAM E_BV", "CPP E(B-V)", "extinction_comparison75.png")
+if __name__ == '__main__':
+    main()
