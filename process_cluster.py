@@ -39,7 +39,7 @@ def process_cluster(cluster_name):
         if not cluster_name or pd.isna(cluster_name):
             print("Error: Cluster name is empty or None.")
             return None
-        
+
         # Run isofitting.py with the cluster name as an argument and capture its output
         result = subprocess.run(
             ["python", "isofitting.py", cluster_name],
@@ -47,26 +47,26 @@ def process_cluster(cluster_name):
             capture_output=True,
             text=True
         )
-        print(f"\nSuccessfully processed cluster: {cluster_name}")
-
-        # Parse the output from isofitting.py
-        output_lines = result.stdout.strip().split("\n")
-        parameters = {}
-        allowed_params = ["met", "loga", "dm", "Av", "met_error", "loga_error", "dm_error", "Av_error"]
-        for line in output_lines:
-            # Capture only lines matching the format "key: value" or "key_error: value"
-            if any(param in line for param in allowed_params):
-                key, value = line.split(":", 1)
-                parameters[key.strip()] = value.strip()
-
-                # Ensure only the relevant columns are returned
-        relevant_keys = ["met", "met  _error", "loga", "loga _error", "dm", "dm   _error", "Av", "Av   _error"]
-        filtered_parameters = {key: parameters.get(key, None) for key in relevant_keys}
-        return filtered_parameters
-
     except subprocess.CalledProcessError as e:
         print(f"\nError processing cluster {cluster_name}: {e.stderr}")
         return None
+    print(f"\nSuccessfully processed cluster: {cluster_name}")
+
+    # Parse the output from isofitting.py
+    output_lines = result.stdout.strip().split("\n")
+    parameters = {}
+    allowed_params = ["met", "loga", "dm", "Av", "met_error", "loga_error", "dm_error", "Av_error"]
+    for line in output_lines:
+        # Capture only lines matching the format "key: value" or "key_error: value"
+        if any(param in line for param in allowed_params):
+            key, value = line.split(":", 1)
+            parameters[key.strip()] = value.strip()
+
+            # Ensure only the relevant columns are returned
+    relevant_keys = ["met", "met  _error", "loga", "loga _error", "dm", "dm   _error", "Av", "Av   _error"]
+    filtered_parameters = {key: parameters.get(key, None) for key in relevant_keys}
+    return filtered_parameters
+
 
 def process_clusters_from_csv(csv_file):
     global loading
@@ -80,7 +80,7 @@ def process_clusters_from_csv(csv_file):
         if 'cluster_name' not in data.columns:
             print("Error: CSV file must contain a 'cluster_name' column.")
             return
-        
+
         # Create a list to store the results
         results = []
         # Start the loading animation in a separate thread
