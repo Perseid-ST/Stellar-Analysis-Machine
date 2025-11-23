@@ -48,13 +48,14 @@ def process_cluster(cluster_name):
             text=True
         )
         print(f"\nSuccessfully processed cluster: {cluster_name}")
-        
+
         # Parse the output from isofitting.py
         output_lines = result.stdout.strip().split("\n")
         parameters = {}
+        allowed_params = ["met", "loga", "dm", "Av", "met_error", "loga_error", "dm_error", "Av_error"]
         for line in output_lines:
             # Capture only lines matching the format "key: value" or "key_error: value"
-            if any(param in line for param in ["met", "loga", "dm", "Av", "met_error", "loga_error", "dm_error", "Av_error"]):
+            if any(param in line for param in allowed_params):
                 key, value = line.split(":", 1)
                 parameters[key.strip()] = value.strip()
 
