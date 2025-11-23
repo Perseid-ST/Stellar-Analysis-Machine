@@ -79,7 +79,7 @@ def main():
     sigmaGRP_0 = 0.007793818
 
     #adding error columns
-    df['e_Gmag'] = np.sqrt((-2.5/np.log(10)*df['phot_g_mean_flux_error']/df['phot_g_mean_flux'])**2 + sigmaG_0**2)
+    df['e_Gmag'] = np.hypot(-2.5/np.log(10)*df['phot_g_mean_flux_error']/df['phot_g_mean_flux'], sigmaG_0)
 
     df['e_BP_RP'] = np.sqrt((-2.5/np.log(10)*df['phot_bp_mean_flux_error']/df['phot_bp_mean_flux'])**2 + (-2.5/np.log(10)*df['phot_rp_mean_flux_error']/df['phot_rp_mean_flux'])**2 + 2*0.00289092**2)
 
